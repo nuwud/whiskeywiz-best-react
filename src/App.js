@@ -1,28 +1,53 @@
-import React, { useEffect, lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 
-// Lazy-loaded components
-const GamePage = lazy(() => import('./pages/GamePage'));
-const AdminPage = lazy(() => import('./pages/AdminPage'));
-const LoginPage = lazy(() => import('./pages/LoginPage'));
-const RegisterPage = lazy(() => import('./pages/RegisterPage'));
-const HomePage = lazy(() => import('./pages/HomePage'));
+// Pages
+import HomePage from './pages/HomePage';
+import GamePage from './pages/GamePage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import AdminPage from './pages/AdminPage';
+import ProfilePage from './pages/ProfilePage';
+import NotFoundPage from './pages/NotFoundPage';
+
+// Components
+import Header from './components/Header';
+import Footer from './components/Footer';
+import PrivateRoute from './components/PrivateRoute';
 
 function App() {
   return (
-    <AuthProvider>
-      <Suspense fallback={<div className="loading">Loading...</div>}>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/game" element={<GamePage />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
-    </AuthProvider>
+    <Router>
+      <AuthProvider>
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          
+          <main className="flex-grow">
+            <Routes>
+              <Route exact path="/" element={<HomePage />} />
+              <Route path="/game" element={<GamePage />} />
+              <Route path="/game/:quarterId" element={<GamePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/profile" element={
+                <PrivateRoute>
+                  <ProfilePage />
+                </PrivateRoute>
+              } />
+              <Route path="/admin" element={
+                <PrivateRoute adminRequired={true}>
+                  <AdminPage />
+                </PrivateRoute>
+              } />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </main>
+          
+          <Footer />
+        </div>
+      </AuthProvider>
+    </Router>
   );
 }
 
